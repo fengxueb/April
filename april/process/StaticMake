@@ -1,0 +1,35 @@
+#makefile for discover
+
+MAKE=make
+CC=gcc
+CXX=g++
+AR=ar
+
+TARGET = libDiscover.so
+
+INCLUDE_FILE :=-I../common
+INCLUDE_FILE +=-I../
+INCLUDE_FILE +=-I./
+
+TOPDIR=../
+
+CPP_SRCS:=$(wildcard *.cpp)
+CPP_OBJS:=$(CPP_SRCS:%.cpp=%.o)
+
+SRCS_H:=$(wildcard *.h)
+SRCS_H+=$(wildcard ../common/*.h)
+
+$(TARGET): $(CPP_OBJS)
+	$(CXX) -shared -o $(TARGET) $(CPP_OBJS) -fPIC -std=c++11 -pthread
+	@test -d $(TOPDIR)/Output || mkdir $(TOPDIR)/Output
+	@cp -rf $(TARGET) $(TOPDIR)/Output
+	@test -d $(TOPDIR)/include || mkdir $(TOPDIR)/include
+	@cp -rf IDiscover.h discoverdef.h DiscoverFactory.h $(TOPDIR)/include
+
+$(CPP_OBJS): %.o:%.cpp $(SRCS_H)
+	$(CXX) $(INCLUDE_FILE) -c -fPIC -std=c++11 -pthread $< -o $@
+
+clean:
+	@rm -rf $(TARGET) $(CPP_OBJS)
+	@rm -rf $(TOPDIR)/Output/$(TARGET)
+	@rm -rf $(TOPDIR)/include/*
